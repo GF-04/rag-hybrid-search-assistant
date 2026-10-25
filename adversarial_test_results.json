@@ -1,0 +1,722 @@
+[
+  {
+    "id": "S1",
+    "query": "这个运维手册主要讲了什么内容？",
+    "type": "普通语义",
+    "expect_chunk": null,
+    "keyword": "概述",
+    "modeA": {
+      "top1": 0,
+      "top5": [
+        0,
+        4,
+        6,
+        7,
+        5
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "answer": "该运维手册主要讲了以下内容：\n\n1. **常见错误码的含义与处理流程**：包括四类错误码——ERR_404_A（支付网关超时）、ERR_404_B（库存锁超时相关）、ERR_502_TIMEOUT（应用层超时）、ERR_502_GATEWAY（网关层转发失败，连接层失败），并分别说明其原因和标准化排查步骤。\n\n2. **向量检索引擎 HNSW-M16 的关键配置参数**：说明其算法原理、M=16 的含义、efSearch 与 efConstruction 的推荐取值、适用规模（百万级向量）、性能指标（单机 QPS ≥ 5000），以及 M 参数不可修改等重要约束。\n\n3. **紧急补丁 V2.3.1-hotfix 的修复内容**：涵盖三个修复项——ERR_404_B 死锁问题、HNSW-M16 在高维（>1024）构建崩溃问题、ERR_502_GATEWAY 高频时熔断失效问题；并说明升级方式（执行 hotfix.sh，无需重启，业务无感）及版本标识。\n\n4. **服务 Panic 后的自动恢复机制**：介绍 Watchdog 进程的监控与自动拉起能力（3 秒内）、优雅重连、从健康检查点恢复缓存，以及 Panic 数据丢失风险和运维建议（配置告警、查日志堆栈、按需回滚）。\n\n手册面向运维与开发人员，强调“告警→查错误码→按流程处置”的标准化响应逻辑。",
+      "ok": false
+    },
+    "modeB": {
+      "top1": 0,
+      "top5": [
+        0,
+        6,
+        4,
+        7,
+        5
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        0,
+        6,
+        7,
+        4,
+        1
+      ],
+      "answer": "该运维手册主要面向运维与开发人员，记录了生产环境的常见错误码（ERR_404_A、ERR_404_B、ERR_502_TIMEOUT、ERR_502_GATEWAY）的含义与处理流程，向量检索引擎 HNSW-M16 的关键配置参数及调优建议，紧急补丁 V2.3.1-hotfix 的修复内容（包括死锁问题、索引构建崩溃、网关熔断异常），以及服务发生 Panic 后的自动恢复机制（基于 Watchdog 进程实现 3 秒内拉起新实例并从健康检查点恢复）。手册强调在收到告警时应优先查阅错误码章节定位问题，并按对应流程操作。",
+      "ok": false
+    }
+  },
+  {
+    "id": "S2",
+    "query": "系统报错时应该先查哪部分？",
+    "type": "普通语义",
+    "expect_chunk": null,
+    "keyword": "错误码章节",
+    "modeA": {
+      "top1": 0,
+      "top5": [
+        0,
+        6,
+        4,
+        3,
+        7
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "answer": "系统报错时，应优先查阅**错误码章节**定位问题，再参照对应处理流程操作。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 0,
+      "top5": [
+        0,
+        4,
+        6,
+        3,
+        7
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 2,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        4,
+        0,
+        6,
+        7,
+        3
+      ],
+      "answer": "系统报错时，应优先查阅错误码章节定位问题，再参照对应处理流程操作。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S3",
+    "query": "支付遇到问题怎么排查？",
+    "type": "普通语义",
+    "expect_chunk": 1,
+    "keyword": "ERR_404_A",
+    "modeA": {
+      "top1": 1,
+      "top5": [
+        1,
+        0,
+        2,
+        7,
+        6
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "支付遇到问题时，应首先确认是否为错误码 ERR_404_A（支付网关超时）：\n\n- **含义**：表示支付网关请求超时，即用户发起支付后，微信、支付宝等支付渠道在30秒内未返回结果，系统自动判定超时并返回该错误码。\n\n- **排查与处理流程**：\n  1. 登录支付网关控制台，查看该笔订单的最终状态；\n  2. 若渠道侧显示支付成功，需调用补偿接口将订单状态更新为“已支付”；\n  3. 若渠道侧无支付记录，则引导用户重新发起支付。\n\n- **注意事项**：ERR_404_A 仅与支付链路相关，与库存、订单状态无关，不得混用其他错误码（如 ERR_404_B）的处理流程。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 1,
+      "top5": [
+        1,
+        2,
+        6,
+        0,
+        4
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 4,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        6,
+        2,
+        4,
+        1,
+        0
+      ],
+      "answer": "支付遇到问题时，应优先排查错误码 **ERR_404_A：支付网关超时**，其处理流程如下：\n\n第一步：登录支付网关控制台查看该笔订单状态；  \n第二步：若渠道侧显示支付成功，调用补偿接口将订单状态改为已支付；  \n第三步：若渠道侧无记录，引导用户重新发起支付。  \n\n注意：ERR_404_A 仅与支付链路相关，与库存、订单状态无关，请勿混用其他错误码的处理流程。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S4",
+    "query": "服务挂了怎么自动恢复？",
+    "type": "普通语义",
+    "expect_chunk": 7,
+    "keyword": "Watchdog",
+    "modeA": {
+      "top1": 7,
+      "top5": [
+        7,
+        6,
+        3,
+        0,
+        2
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "当服务发生 Panic 导致崩溃时，系统通过 Watchdog（看门狗）机制实现自动恢复：Watchdog 进程持续监控主服务的存活状态，一旦检测到主服务进程退出，会在 3 秒内自动拉起新的服务实例，并触发优雅重连流程。Panic 恢复后，服务会从最近一次健康检查点恢复内存中的缓存数据；未持久化的请求数据可能丢失，客户端会收到重试信号。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 7,
+      "top5": [
+        7,
+        6,
+        0,
+        3,
+        2
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        7,
+        6,
+        0,
+        4,
+        3
+      ],
+      "answer": "当服务发生 Panic 导致进程崩溃退出时，系统通过 Watchdog（看门狗）进程实现自动恢复：Watchdog 持续监控主服务的存活状态，一旦检测到主服务进程退出，会在 3 秒内自动拉起新的服务实例，并触发优雅重连流程。Panic 恢复后，服务会从最近一次健康检查点恢复内存中的缓存数据；未持久化的请求数据可能丢失，客户端会收到重试信号。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S5",
+    "query": "付钱的时候卡住不动是啥问题？",
+    "type": "同义改写",
+    "expect_chunk": 1,
+    "keyword": "ERR_404_A",
+    "modeA": {
+      "top1": 1,
+      "top5": [
+        1,
+        2,
+        3,
+        0,
+        7
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "付钱的时候卡住不动，可能是错误码 **ERR_404_A：支付网关超时** 导致的问题。\n\n根据上下文，ERR_404_A 表示支付网关请求超时，触发条件为：支付请求发出后 **30 秒内未收到支付渠道（如微信、支付宝）的回调响应**，系统自动判定超时并返回该错误码。此时用户界面可能表现为“卡住不动”。\n\n处理建议：\n- 第一步：登录支付网关控制台查看该笔订单的最终状态；\n- 第二步：若渠道侧显示支付成功，需调用补偿接口将订单状态更新为已支付；\n- 第三步：若渠道侧无记录，则引导用户重新发起支付。\n\n注意：该错误仅与支付链路相关，与库存、订单状态无关。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 2,
+      "top5": [
+        2,
+        6,
+        3,
+        0,
+        1
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 2,
+      "rrf_top1_brank": 2,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        6,
+        2,
+        0,
+        3,
+        7
+      ],
+      "answer": "根据上下文，付钱时卡住不动对应错误码 **ERR_404_A：支付网关超时**。\n\n该错误表示：用户发起支付后，支付渠道（如微信、支付宝）在约定的 **30 秒内未返回结果**，系统自动判定超时并返回 ERR_404_A。  \n常见原因包括支付渠道响应延迟、网络抖动或回调失败等。\n\n处理流程为：  \n1. 登录支付网关控制台查看该笔订单实际状态；  \n2. 若渠道侧显示支付成功，需调用补偿接口将订单状态更新为已支付；  \n3. 若渠道侧无记录，引导用户重新发起支付。\n\n注意：ERR_404_A 仅与支付链路相关，与库存、订单生成等其他环节无关。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S6",
+    "query": "秒杀时库存扣不下来怎么办？",
+    "type": "同义改写",
+    "expect_chunk": 2,
+    "keyword": "ERR_404_B",
+    "modeA": {
+      "top1": 2,
+      "top5": [
+        2,
+        1,
+        3,
+        0,
+        6
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "秒杀时库存扣不下来，可能触发错误码 ERR_404_B（库存分布式锁超时）。该错误表示库存服务在 5 秒内未能从 Redis 获取到对应商品的分布式锁，常见于高并发秒杀场景下多个请求争抢同一商品库存锁。\n\n处理流程如下：  \n第一步，检查 Redis 集群的连接状态与 QPS；  \n第二步，若 Redis 正常，说明是瞬时高并发导致，可适当调大锁等待时间至 8 秒；  \n第三步，若频繁出现，需评估是否对热门商品做库存预扣或分桶处理。\n\n此外，紧急补丁 V2.3.1-hotfix 已修复 ERR_404_B 锁超时后未正确释放锁导致的死锁问题，建议确认当前版本是否已升级至 V2.3.1-hotfix。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 2,
+      "top5": [
+        2,
+        1,
+        6,
+        4,
+        0
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        2,
+        4,
+        6,
+        1,
+        0
+      ],
+      "answer": "秒杀时库存扣不下来，可能触发错误码 ERR_404_B（库存分布式锁超时）。该错误表示库存服务在 5 秒内未能从 Redis 获取到对应商品的分布式锁，常见于高并发秒杀场景下多个请求争抢同一商品库存锁。\n\n处理流程如下：  \n第一步，检查 Redis 集群的连接状态与 QPS；  \n第二步，若 Redis 正常，说明是瞬时高并发导致，可适当调大锁等待时间至 8 秒；  \n第三步，若该错误频繁出现，需评估对热门商品实施库存预扣或分桶处理。\n\n此外，V2.3.1-hotfix 补丁已修复 ERR_404_B 锁超时后未正确释放锁导致的死锁问题，建议确认当前版本是否已升级至 V2.3.1-hotfix（通过执行 hotfix.sh 脚本完成热升级，无需重启服务）。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S7",
+    "query": "网关转发请求失败怎么搞？",
+    "type": "同义改写",
+    "expect_chunk": 4,
+    "keyword": "ERR_502_GATEWAY",
+    "modeA": {
+      "top1": 3,
+      "top5": [
+        3,
+        4,
+        1,
+        0,
+        2
+      ],
+      "correct_rank": 2,
+      "in_top5": true,
+      "answer": "根据文档，网关转发请求失败对应错误码 **ERR_502_GATEWAY**，处理流程如下：\n\n第一步：检查网关到上游服务的网络连通性（如使用 ping、telnet）；  \n第二步：查看负载均衡器的健康检查状态，确认上游实例是否被摘除；  \n第三步：检查上游服务的端口是否正常监听。  \n\n注意：ERR_502_GATEWAY 是连接层失败（连不上），区别于 ERR_502_TIMEOUT（连上了但超时未响应），排查时需先明确区分。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 3,
+      "top5": [
+        3,
+        4,
+        1,
+        0,
+        2
+      ],
+      "correct_rank": 2,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 2,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        4,
+        3,
+        1,
+        0,
+        6
+      ],
+      "answer": "根据文档，网关转发请求失败对应错误码 **ERR_502_GATEWAY**，处理流程如下：\n\n第一步：检查网关到上游服务的网络连通性（如使用 ping、telnet）；  \n第二步：查看负载均衡器的健康检查状态，确认上游实例是否被摘除；  \n第三步：检查上游服务的端口是否正常监听。  \n\n注意：ERR_502_GATEWAY 是连接层失败（连不上），区别于 ERR_502_TIMEOUT（连上了但超时未响应），排查时需先明确区分。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S8",
+    "query": "近似最近邻索引参数怎么调？",
+    "type": "同义改写",
+    "expect_chunk": 5,
+    "keyword": "HNSW-M16",
+    "modeA": {
+      "top1": 5,
+      "top5": [
+        5,
+        6,
+        4,
+        0,
+        2
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "近似最近邻索引采用 HNSW（Hierarchical Navigable Small World）算法，参数配置如下：\n\n- **M 参数（构建阶段）**：设为 16，即每个节点最多连接 16 个邻居，记为 HNSW-M16；该参数在索引构建后不可修改，若需调整必须重建索引。\n- **efConstruction 参数（构建阶段）**：建议设为 400。\n- **efSearch 参数（查询阶段）**：建议设为 200，可在召回率与延迟之间取得较好平衡；若对召回率要求极高，可调至 400，但查询延迟会增加约 1.8 倍。\n\n该配置（HNSW-M16）适合百万级向量规模，单机 QPS 可达 5000 以上。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 5,
+      "top5": [
+        5,
+        6,
+        0,
+        7,
+        4
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        5,
+        7,
+        0,
+        6,
+        1
+      ],
+      "answer": "近似最近邻索引采用 HNSW（Hierarchical Navigable Small World）算法，当前配置为 HNSW-M16，即构建参数 **M = 16**（每个节点最多连接 16 个邻居），该参数在索引构建后不可修改，如需调整必须重建索引。\n\n调优参数如下：\n\n- **构建阶段**：  \n  - `efConstruction` 建议设为 **400**；  \n  - `M` 固定为 **16**。\n\n- **查询阶段**：  \n  - `efSearch` 建议设为 **200**，可在召回率与延迟间取得较好平衡；  \n  - 若对召回率要求极高，可调至 **400**，但查询延迟会增加约 **1.8 倍**。\n\n该配置适用于百万级向量规模，单机 QPS 可达 **5000 以上**。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S9",
+    "query": "ERR_404_A 是什么错误？",
+    "type": "精确编号",
+    "expect_chunk": 1,
+    "keyword": "支付网关超时",
+    "modeA": {
+      "top1": 1,
+      "top5": [
+        1,
+        0,
+        2,
+        3,
+        4
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "ERR_404_A 表示支付网关超时，通常发生在用户发起支付后，支付渠道（如微信、支付宝）在约定时间内未返回结果。触发条件为：支付请求发出后 30 秒内未收到渠道回调，系统自动判定为超时并返回 ERR_404_A。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 1,
+      "top5": [
+        1,
+        4,
+        0,
+        3,
+        2
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 3,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        4,
+        3,
+        1,
+        0,
+        2
+      ],
+      "answer": "ERR_404_A 表示支付网关超时，通常发生在用户发起支付后，支付渠道（如微信、支付宝）在约定时间内未返回结果。触发条件为：支付请求发出后 30 秒内未收到渠道回调，系统自动判定为超时并返回 ERR_404_A。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S10",
+    "query": "HNSW-M16 的 efSearch 建议值？",
+    "type": "精确编号",
+    "expect_chunk": 5,
+    "keyword": "200",
+    "modeA": {
+      "top1": 5,
+      "top5": [
+        5,
+        4,
+        6,
+        0,
+        2
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "HNSW-M16 的 efSearch 建议值为 200。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 5,
+      "top5": [
+        5,
+        0,
+        4,
+        6,
+        3
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        5,
+        0,
+        3,
+        7,
+        6
+      ],
+      "answer": "HNSW-M16 的 efSearch 建议值为 200。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S11",
+    "query": "V2.3.1-hotfix 修复了什么？",
+    "type": "精确编号",
+    "expect_chunk": 6,
+    "keyword": "死锁",
+    "modeA": {
+      "top1": 6,
+      "top5": [
+        6,
+        5,
+        7,
+        0,
+        2
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "V2.3.1-hotfix 修复了以下三个问题：  \n1. 修复了 ERR_404_B 库存锁超时后未正确释放锁导致的死锁问题；  \n2. 修复了 HNSW-M16 索引在向量维度超过 1024 时的构建崩溃问题；  \n3. 修复了网关在 ERR_502_GATEWAY 高频出现时未正确熔断上游的问题。  \n\n该补丁为热修复补丁，升级方式为执行 `hotfix.sh` 脚本，无需重启服务，对业务无感知，升级后版本号显示为 V2.3.1-hotfix。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 6,
+      "top5": [
+        6,
+        5,
+        0,
+        7,
+        4
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        6,
+        0,
+        5,
+        4,
+        7
+      ],
+      "answer": "V2.3.1-hotfix 修复了以下三个问题：\n\n1. 修复了 ERR_404_B 库存锁超时后未正确释放锁导致的死锁问题；  \n2. 修复了 HNSW-M16 索引在向量维度超过 1024 时的构建崩溃问题；  \n3. 修复了网关在 ERR_502_GATEWAY 高频出现时未正确熔断上游的问题。  \n\n该补丁为热修复补丁，已通过全量灰度验证，升级方式为执行 `hotfix.sh` 脚本，无需重启服务，对业务无感知，升级后版本号显示为 `V2.3.1-hotfix`。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S12",
+    "query": "Panic Watchdog 看门狗机制 ERR_404_A 是什么错误？",
+    "type": "对抗性混合",
+    "expect_chunk": 1,
+    "keyword": "ERR_404_A",
+    "modeA": {
+      "top1": 7,
+      "top5": [
+        7,
+        0,
+        6,
+        1,
+        2
+      ],
+      "correct_rank": 4,
+      "in_top5": true,
+      "answer": "Panic Watchdog 看门狗机制与 ERR_404_A 无直接关联。\n\n根据上下文：\n- Panic Watchdog 机制（见片段1、片段3）是用于在服务发生 Panic（如空指针、数组越界）导致进程崩溃时，由 Watchdog 进程在 3 秒内自动拉起新实例并触发优雅重连的高可用保障机制。\n- ERR_404_A 是一个独立的错误码，定义为“支付网关超时”（见片段2、片段4），表示支付请求发出后 30 秒内未收到微信/支付宝等渠道回调，系统主动返回的业务错误，与服务 Panic 或 Watchdog 机制无关。\n\n因此，ERR_404_A 不属于 Panic 或 Watchdog 机制范畴，而是支付链路的业务超时错误。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 7,
+      "top5": [
+        7,
+        0,
+        6,
+        1,
+        4
+      ],
+      "correct_rank": 4,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        7,
+        6,
+        0,
+        4,
+        3
+      ],
+      "answer": "文档中未查询到相关内容，严禁编造外部知识，禁止额外发挥",
+      "ok": false
+    }
+  },
+  {
+    "id": "S13",
+    "query": "efSearch efConstruction HNSW 索引 ERR_404_B 怎么处理？",
+    "type": "对抗性混合",
+    "expect_chunk": 2,
+    "keyword": "ERR_404_B",
+    "modeA": {
+      "top1": 5,
+      "top5": [
+        5,
+        4,
+        2,
+        0,
+        6
+      ],
+      "correct_rank": 3,
+      "in_top5": true,
+      "answer": "根据提供的上下文，对 `efSearch`、`efConstruction`、`HNSW 索引` 和 `ERR_404_B` 的处理需分两部分理解，因其属于不同模块，**无直接关联**：\n\n1. **关于 `efSearch` 与 `efConstruction`（HNSW-M16 索引参数）**：  \n   - `efSearch` 是查询阶段参数，建议设为 200（平衡召回率与延迟），若要求极高召回率可设为 400（但延迟增加约 1.8 倍）；  \n   - `efConstruction` 是构建阶段参数，建议设为 400；  \n   - `M = 16` 是 HNSW 索引的固定配置（即 HNSW-M16），构建后不可修改，调整需重建索引；  \n   - 该配置适用于百万级向量，单机 QPS ≥ 5000。\n\n2. **关于 `ERR_404_B`（库存分布式锁超时）**：  \n   - 表示库存服务在 5 秒内未能从 Redis 获取商品锁；  \n   - 处理流程：  \n     - 第一步：检查 Redis 集群连接状态与 QPS；  \n     - 第二步：若 Redis 正常，可将锁等待时间调大至 8 秒；  \n     - 第三步：若频繁发生，需评估库存预扣或分桶方案；  \n   - 注意：V2.3.1-hotfix 已修复其引发的**死锁问题**（即锁超时后未释放）。\n\n✅ 综上：`efSearch`/`efConstruction`/`HNSW-M16` 属于**向量检索引擎配置**，而 `ERR_404_B` 属于**库存服务错误码**，二者无技术耦合。遇到 `ERR_404_B` 时，按其专属流程处理（查 Redis、调锁等待时间、评估分桶等），无需调整 HNSW 参数。",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 5,
+      "top5": [
+        5,
+        0,
+        4,
+        2,
+        6
+      ],
+      "correct_rank": 3,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        5,
+        0,
+        6,
+        1,
+        2
+      ],
+      "answer": "根据提供的上下文，对 `efSearch`、`efConstruction`、`HNSW 索引` 和 `ERR_404_B` 的处理需分两部分理解：\n\n1. **关于 `efSearch` 和 `efConstruction`（HNSW-M16 参数）**：  \n   - `efSearch` 建议设为 200（平衡召回率与延迟），若对召回率要求极高可调至 400（但查询延迟增加约 1.8 倍）；  \n   - `efConstruction` 建议设为 400，`M` 设为 16；  \n   - `M` 参数在索引构建后不可修改，调整需重建索引；  \n   - HNSW-M16 适用于百万级向量规模，单机 QPS 可达 5000 以上。\n\n2. **关于 `ERR_404_B`（库存分布式锁超时）**：  \n   - 表示库存服务在 5 秒内未能从 Redis 获取对应商品的分布式锁；  \n   - 处理流程：  \n     第一步：检查 Redis 集群连接状态与 QPS；  \n     第二步：若 Redis 正常，可将锁等待时间适当调大至 8 秒；  \n     第三步：若频繁出现，需评估对热门商品做库存预扣或分桶处理；  \n   - 注意：V2.3.1-hotfix 已修复 ERR_404_B 锁超时后未正确释放导致的死锁问题。\n\n⚠️ 特别说明：`efSearch`/`efConstruction` 属于向量检索引擎（HNSW-M16）配置参数，而 `ERR_404_B` 是库存服务错误码，二者无直接技术关联。上下文中未提及 `efSearch` 或 `efConstruction` 的取值会影响 `ERR_404_B` 的发生或处理方式。",
+      "ok": true
+    }
+  },
+  {
+    "id": "S14",
+    "query": "微信支付宝支付回调超时 V2.3.1-hotfix 修复了啥？",
+    "type": "对抗性混合",
+    "expect_chunk": 6,
+    "keyword": "V2.3.1-hotfix",
+    "modeA": {
+      "top1": 6,
+      "top5": [
+        6,
+        1,
+        0,
+        7,
+        2
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "answer": "文档中未查询到相关内容，严禁编造外部知识，禁止额外发挥",
+      "ok": false
+    },
+    "modeB": {
+      "top1": 6,
+      "top5": [
+        6,
+        1,
+        0,
+        2,
+        5
+      ],
+      "correct_rank": 1,
+      "in_top5": true,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 2,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        1,
+        6,
+        0,
+        2,
+        5
+      ],
+      "answer": "文档中未查询到相关内容，严禁编造外部知识，禁止额外发挥",
+      "ok": false
+    }
+  },
+  {
+    "id": "S15",
+    "query": "ERR_999 是什么意思？",
+    "type": "无答案",
+    "expect_chunk": null,
+    "keyword": "未查询到",
+    "modeA": {
+      "top1": 2,
+      "top5": [
+        2,
+        3,
+        0,
+        4,
+        1
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "answer": "文档中未查询到相关内容",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 2,
+      "top5": [
+        2,
+        0,
+        3,
+        1,
+        4
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 3,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "answer": "文档中未查询到相关内容",
+      "ok": true
+    }
+  },
+  {
+    "id": "S16",
+    "query": "怎么配置 Redis 集群？",
+    "type": "无答案",
+    "expect_chunk": null,
+    "keyword": "未查询到",
+    "modeA": {
+      "top1": 2,
+      "top5": [
+        2,
+        5,
+        6,
+        0,
+        7
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "answer": "文档中未查询到相关内容，严禁编造外部知识，禁止额外发挥",
+      "ok": true
+    },
+    "modeB": {
+      "top1": 2,
+      "top5": [
+        2,
+        5,
+        6,
+        0,
+        7
+      ],
+      "correct_rank": null,
+      "in_top5": false,
+      "rrf_top1_vrank": 1,
+      "rrf_top1_brank": 1,
+      "rrf_top1_tag": "两路都命中",
+      "bm25_top5": [
+        2,
+        6,
+        5,
+        0,
+        4
+      ],
+      "answer": "文档中未查询到相关内容，严禁编造外部知识，禁止额外发挥",
+      "ok": true
+    }
+  }
+]

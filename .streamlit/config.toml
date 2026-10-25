@@ -1,0 +1,8 @@
+[browser]
+# 关闭使用统计：默认开启时 Streamlit 会向 ~/.streamlit 写 machine_id 文件，
+# 在权限受限环境下会抛 PermissionError 并导致会话创建失败、文件上传标红
+gatherUsageStats = false
+
+[server]
+# 跳过首次启动的邮箱订阅引导，避免阻塞
+headless = true

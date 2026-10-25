@@ -1,0 +1,43 @@
+# ==================== 密钥与本地配置（绝对不能提交）====================
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.streamlit/secrets.toml
+
+# ==================== Python ====================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ==================== 运行时产物 ====================
+# Chroma 向量库持久化目录：由本地文档上传生成，不入库
+chroma_db/
+*.log
+
+# ==================== IDE / 编辑器 ====================
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==================== 工具临时目录 ====================
+.trae-html-share-packages/
