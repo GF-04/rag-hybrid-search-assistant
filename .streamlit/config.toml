@@ -6,3 +6,7 @@ gatherUsageStats = false
 [server]
 # 跳过首次启动的邮箱订阅引导，避免阻塞
 headless = true
+
+[client]
+# 工具栏只保留「⋯」菜单，隐藏右上角的 Deploy 按钮，截图更干净
+toolbarMode = "minimal"

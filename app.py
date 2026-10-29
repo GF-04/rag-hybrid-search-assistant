@@ -201,26 +201,27 @@ def render_preview_item(item: dict, order: int, show_rank_meta: bool = False) ->
     渲染单条召回结果：
     - 折叠标题只放名次 + chunk 序号 + 短摘要，保证单行不换行；
     - 展开后正文放进固定高度的滚动容器，长文档不会把折叠区撑高。
-    show_rank_meta=True 时额外展示向量/BM25 原始名次与命中标记（仅 RRF 融合结果需要）。
+    show_rank_meta=True 时折叠标题改为「#名次 · 向量#x / BM25#y · 命中来源」，
+    让 RRF 融合依据无需展开即可见（仅 RRF 融合结果需要）。
     """
     meta = item.get("metadata") or {}
     filename = meta.get("filename", "?")
     chunk_index = meta.get("chunk_index", "?")
-    headline = _snippet(item.get("content"), PREVIEW_SNIPPET_CHARS)
-    label = f"#{order} · chunk {chunk_index} · {headline}"
+
+    if show_rank_meta:
+        # RRF 结果把两路原始名次直接写进折叠标题：不展开也能看出融合依据，
+        # 也不放过窄栏时被省略号截断，因此不再拼接正文摘要。
+        vr = item.get("vector_rank")
+        br = item.get("bm25_rank")
+        vec_txt = f"向量#{vr}" if vr is not None else "向量×"
+        bm25_txt = f"BM25#{br}" if br is not None else "BM25×"
+        label = f"#{order} · {vec_txt} / {bm25_txt} · {item.get('source_tag', '')}"
+    else:
+        headline = _snippet(item.get("content"), PREVIEW_SNIPPET_CHARS)
+        label = f"#{order} · chunk {chunk_index} · {headline}"
 
     with st.expander(label, expanded=False):
-        meta_parts = [f"📄 {filename} · chunk {chunk_index}"]
-        if show_rank_meta:
-            vr = item.get("vector_rank")
-            br = item.get("bm25_rank")
-            rank_info = (
-                f"向量第{vr}名" if vr is not None else "向量未命中"
-            ) + " / " + (
-                f"BM25第{br}名" if br is not None else "BM25未命中"
-            )
-            meta_parts.append(f"{rank_info} 【{item.get('source_tag', '')}】")
-        st.caption(" ｜ ".join(meta_parts))
+        st.caption(f"📄 {filename} · chunk {chunk_index}")
 
         with st.container(height=PREVIEW_BODY_HEIGHT, border=False):
             st.markdown(item.get("content") or "")
@@ -290,7 +291,12 @@ def generate_answer(question: str, context_chunks: list) -> str:
     messages.append(HumanMessage(content=current_input))
 
     response = llm.invoke(messages)
-    return response.content
+    answer = response.content
+    # 拒答场景强制收敛为固定话术：模型偶尔会把 System Prompt 里的约束语句
+    # （"严禁编造外部知识，禁止额外发挥"）一起复述出来，暴露提示词且显得啰嗦
+    if "文档中未查询到相关内容" in answer:
+        answer = "文档中未查询到相关内容"
+    return answer
 
 
 # =====================================================================
